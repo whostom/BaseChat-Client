@@ -7,8 +7,14 @@ import { jwtDecode } from "jwt-decode";
 function MessagesPage() {
 
   const [loggedUser, setLoggedUser] = useState(null);
+  const [peopleList, setPeopleList] = useState([]);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [messagesList, setMessagesList] = useState([]);
+  const [sendContent, setSendContent] = useState("");
 
   const socket = useRef(null);
+  const decodedToken = useRef(null);
 
   const navigate = useNavigate();
 
@@ -21,8 +27,8 @@ function MessagesPage() {
     }
 
     try {
-      const decodedToken = jwtDecode(token);
-      setLoggedUser(decodedToken.login);
+      decodedToken.current = jwtDecode(token);
+      setLoggedUser(decodedToken.current.login);
     }
     catch (error) {
       console.error("Invalid token:", error);
@@ -34,10 +40,53 @@ function MessagesPage() {
 
     socket.current.on("connect", () => {
       console.log("Succesfully connected with the server!");
+
+      socket.current.emit("request-user-list", { loggedUser: decodedToken.current.id });
+    });
+
+    socket.current.on("request-user-list-success", (result) => {
+      if (result.length > 0) {
+        const mapped = result.map(person => (<div className="card" id={person.user_id} key={person.user_id} onClick={() => selectChatHandler(person)}>{person.login}</div>));
+        setPeopleList(mapped);
+      }
+      else {
+        setPeopleList([<div key="no-users">Nie ma użytkowników do wyświetlenia!</div>]);
+      }
+    });
+
+    socket.current.on("request-user-list-error", (err) => {
+      console.error("Error fetching user list:", err);
+    });
+
+    socket.current.on("request-messages-success", (result) => {
+      if (result.length > 0) {
+        const mapped = result.map(msg => (
+          msg.author_id == decodedToken.current.id
+            ? <div className="authored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
+            : <div className="notAuthored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
+        ));
+        setMessagesList(mapped);
+      }
+      else {
+        setMessagesList([<div key="no-messages">Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!</div>]);
+      }
+    });
+
+    socket.current.on("request-messages-error", (err) => {
+      console.error("Error fetching messages:", err);
+    });
+
+    socket.current.on("send-message-error", (err) => {
+      console.error("Error sending a message:", err);
     });
 
     return () => {
       socket.current.disconnect();
+      socket.current.off("request-user-list-success");
+      socket.current.off("request-user-list-error");
+      socket.current.off("request-messages-success");
+      socket.current.off("request-messages-error");
+      socket.current.off("send-message-error");
     };
   }, [navigate]);
 
@@ -46,7 +95,33 @@ function MessagesPage() {
     navigate("/");
   }
 
-  // socket.current.emit("request-user-list", { loggedUser });
+  const selectChatHandler = (person) => {
+    setSelectedUser(person.login);
+    setSelectedUserId(person.user_id);
+  };
+
+  useEffect(() => {
+    if (selectedUserId != null) {
+      socket.current.emit("request-messages", { loggedUser: decodedToken.current.id, fromId: selectedUserId });
+    }
+  }, [selectedUserId]);
+
+  const handleSend = () => {
+    const newMessage = {
+      message_id: new Date().getTime(),
+      content: sendContent,
+      author_id: decodedToken.current.id
+    };
+
+    console.log(messagesList)
+    // ja już nie mam siły
+    // setMessagesList([...messagesList, <div className="authored" id={newMessage.message_id} key={newMessage.message_id}>{newMessage.content}</div>]);
+    console.log(messagesList)
+
+    socket.current.emit("send-message", { loggedUser: decodedToken.current.id, content: sendContent, receiverId: selectedUserId });
+
+    setSendContent("");
+  };
 
   return (
     <>
@@ -57,27 +132,19 @@ function MessagesPage() {
             Zalogowano jako: {loggedUser || "Nieznany użytkownik"}<br /><br />
             <a id="logout" onClick={logout}>Wyloguj się</a>
           </div>
-          <div className="card" id="card1">marek</div>
-          <div className="card" id="card2">zbychu</div>
-          <div className="card" id="card2">krzysiek</div>
+          {peopleList}
         </div>
 
         <div id="chat">
           <div id="messageSend">
-            <input type="text" id="messageContent" />
-            <button id="sendBtn">Wyślij</button>
+            <input type="text" id="messageContent" value={sendContent} onChange={(e) => setSendContent(e.target.value)} />
+            <button id="sendBtn" onClick={handleSend}>Wyślij</button>
           </div>
           <div id="messages">
-            <div className="authored">spadaj</div>
-            <div className="notAuthored">podziel się</div>
-            <div className="notAuthored">spoko</div>
-            <div className="authored">i zamieniłem się w kazachstan</div>
-            <div className="authored">zjadłem trochę tych grzybów</div>
-            <div className="notAuthored">co</div>
-            <div className="authored">ej, zbychu</div>
+            {messagesList}
           </div>
           <div id="selectedUser">
-            Aktualnie piszesz z użytkownikiem: zbychu
+            {selectedUser != "" && <span>Aktualnie czatujesz z użytkownikiem {selectedUser}</span>}
           </div>
         </div>
 

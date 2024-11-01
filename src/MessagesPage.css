@@ -142,3 +142,7 @@ body {
     outline: 2px solid #252525;
     width: 80%;
 }
+
+#messageContent {
+    color: black
+}
