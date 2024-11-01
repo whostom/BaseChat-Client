@@ -34,6 +34,7 @@ function LoginRegister() {
     });
 
     socket.current.on('login-success', (data) => {
+      localStorage.setItem('token', data.token);
       navigate('/MessagesPage');
     });
 
@@ -63,6 +64,13 @@ function LoginRegister() {
     setPassword("");
     setRepeatedPassword("");
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/MessagesPage');
+    }
+  }, [navigate]);
 
   return (
     <>
