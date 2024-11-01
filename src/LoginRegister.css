@@ -14,7 +14,7 @@ body {
     height: 100vh;
 }
 
-.loginRegister {
+.loginRegisterForm {
     display: flex;
     align-items: center;
     padding-top: 5rem;
@@ -53,8 +53,7 @@ label {
     text-transform: uppercase;
 }
 
-#submit,
-#submitR {
+#submitBtn {
     cursor: pointer;
     background-color: #f3f7fe;
     color: #3b82f6;
@@ -66,8 +65,7 @@ label {
     text-transform: uppercase;
 }
 
-#submit:hover,
-#submitR:hover {
+#submitBtn:hover {
     background-color: #3b82f6;
     box-shadow: 0 0 0 5px #3b83f65f;
     color: #fff;
