@@ -1,26 +1,52 @@
-import './MessagesPage.css'
-import { io } from 'socket.io-client';
-import { useState, useEffect } from 'react'
+import "./MessagesPage.css"
+import { io } from "socket.io-client";
+import { useState, useEffect, useRef } from "react"
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 function MessagesPage() {
 
+  const [loggedUser, setLoggedUser] = useState(null);
+
+  const socket = useRef(null);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const socket = io('http://localhost:3000');
+    const token = localStorage.getItem("token");
 
-    socket.on('connect', () => {
-      console.log('Succesfully connected with the server!');
+    if (!token) {
+      navigate("/");
+      return;
+    }
+
+    try {
+      const decodedToken = jwtDecode(token);
+      setLoggedUser(decodedToken.login);
+    }
+    catch (error) {
+      console.error("Invalid token:", error);
+      navigate("/");
+      return;
+    }
+
+    socket.current = io("http://localhost:3000");
+
+    socket.current.on("connect", () => {
+      console.log("Succesfully connected with the server!");
     });
 
-    // Dodaj tutaj inne obsługiwane zdarzenia
-    socket.on('message', (data) => {
-      console.log('Otrzymano wiadomość:', data);
-    });
-
-    // Czyszczenie połączenia po zakończeniu
     return () => {
-      socket.disconnect();
+      socket.current.disconnect();
     };
-  }, []);
+  }, [navigate]);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  }
+
+  // socket.current.emit("request-user-list", { loggedUser });
 
   return (
     <>
@@ -28,7 +54,8 @@ function MessagesPage() {
 
         <div id="peopleList">
           <div id="loggedUser">
-            Zalogowano jako: juzek ogórek<br /><br /><a id="logout" href="">Wyloguj się</a>
+            Zalogowano jako: {loggedUser || "Nieznany użytkownik"}<br /><br />
+            <a id="logout" onClick={logout}>Wyloguj się</a>
           </div>
           <div className="card" id="card1">marek</div>
           <div className="card" id="card2">zbychu</div>

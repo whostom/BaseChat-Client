@@ -1,8 +1,8 @@
-import './LoginRegister.css'
-import { io } from 'socket.io-client';
-import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom';
-import CryptoJS from 'crypto-js';
+import "./LoginRegister.css"
+import { io } from "socket.io-client";
+import { useState, useEffect, useRef } from "react"
+import { useNavigate } from "react-router-dom";
+import CryptoJS from "crypto-js";
 
 function LoginRegister() {
 
@@ -19,35 +19,35 @@ function LoginRegister() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    socket.current = io('http://localhost:3000');
+    socket.current = io("http://localhost:3000");
 
-    socket.current.on('connect', () => {
-      console.log('Succesfully connected with the server!');
+    socket.current.on("connect", () => {
+      console.log("Succesfully connected with the server!");
     });
 
-    socket.current.on('register-success', (data) => {
+    socket.current.on("register-success", (data) => {
       setMessage("Pomyślnie zarejestrowano! Możesz się zalogować.");
     });
 
-    socket.current.on('register-failure', (error) => {
+    socket.current.on("register-failure", (error) => {
       setMessage("Podczas rejestracji wystąpił problem...");
     });
 
-    socket.current.on('login-success', (data) => {
-      localStorage.setItem('token', data.token);
-      navigate('/MessagesPage');
+    socket.current.on("login-success", ({user, token}) => {
+      localStorage.setItem("token", token);
+      navigate("/MessagesPage");
     });
 
-    socket.current.on('login-failure', (error) => {
+    socket.current.on("login-failure", (error) => {
       setMessage("Niepoprawne dane logowania!");
     });
 
     return () => {
       socket.current.disconnect();
-      socket.current.off('register-success');
-      socket.current.off('register-failure');
-      socket.current.off('login-success');
-      socket.current.off('login-failure');
+      socket.current.off("register-success");
+      socket.current.off("register-failure");
+      socket.current.off("login-success");
+      socket.current.off("login-failure");
     };
   }, []);
 
@@ -56,8 +56,8 @@ function LoginRegister() {
 
     const hashedPassword = CryptoJS.SHA256(password).toString();
 
-    if (!hasAccount) socket.current.emit('register-user', { username, password, email });
-    else socket.current.emit('login-user', { username, hashedPassword, email });
+    if (!hasAccount) socket.current.emit("register-user", { username, password, email });
+    else socket.current.emit("login-user", { username, hashedPassword, email });
 
     setUsername("");
     setEmail("");
@@ -66,9 +66,10 @@ function LoginRegister() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
+    console.log(token);
     if (token) {
-      navigate('/MessagesPage');
+      navigate("/MessagesPage");
     }
   }, [navigate]);
 
