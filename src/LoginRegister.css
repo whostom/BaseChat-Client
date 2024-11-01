@@ -71,8 +71,8 @@ label {
     color: #fff;
 }
 
-#loginInfo {
-    color: red;
+#info {
+    color: #3b82f6;
     margin-top: 2rem;
     text-align: center;
 }

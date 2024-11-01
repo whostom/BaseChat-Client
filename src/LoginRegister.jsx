@@ -2,6 +2,7 @@ import './LoginRegister.css'
 import { io } from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 function LoginRegister() {
 
@@ -15,7 +16,7 @@ function LoginRegister() {
 
   const socket = useRef(null);
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     socket.current = io('http://localhost:3000');
@@ -24,33 +25,43 @@ function LoginRegister() {
       console.log('Succesfully connected with the server!');
     });
 
-    // Dodaj tutaj inne obsługiwane zdarzenia
     socket.current.on('register-success', (data) => {
-      setMessage(data);
-    });
-  
-    socket.current.on('register-failure', (error) => {
-      setMessage(error);
+      setMessage("Pomyślnie zarejestrowano! Możesz się zalogować.");
     });
 
-    // Czyszczenie połączenia po zakończeniu
+    socket.current.on('register-failure', (error) => {
+      setMessage("Podczas rejestracji wystąpił problem...");
+    });
+
+    socket.current.on('login-success', (data) => {
+      navigate('/MessagesPage');
+    });
+
+    socket.current.on('login-failure', (error) => {
+      setMessage("Niepoprawne dane logowania!");
+    });
+
     return () => {
       socket.current.disconnect();
       socket.current.off('register-success');
       socket.current.off('register-failure');
+      socket.current.off('login-success');
+      socket.current.off('login-failure');
     };
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    socket.current.emit('register-user', { username, password, email });
+    const hashedPassword = CryptoJS.SHA256(password).toString();
+
+    if (!hasAccount) socket.current.emit('register-user', { username, password, email });
+    else socket.current.emit('login-user', { username, hashedPassword, email });
+
     setUsername("");
-    setEmail('');
+    setEmail("");
     setPassword("");
     setRepeatedPassword("");
-
-    // navigate('/MessagesPage');
   };
 
   return (
@@ -74,8 +85,8 @@ function LoginRegister() {
 
           <div>
             {hasAccount ? "Nie masz jeszcze u nas konta?" : "Masz już u nas założone konto?"}
-            <span className="btn" onClick={() => { setHasAccount(!hasAccount) }}> {hasAccount ? "Zarejestruj!" : "Zaloguj!"}</span><br />
-            {message && <span id="loginInfo">{message}</span>}
+            <span className="btn" onClick={() => { setHasAccount(!hasAccount); setMessage("") }}> {hasAccount ? "Zarejestruj!" : "Zaloguj!"}</span><br /><br />
+            <span id="info">{message}</span>
           </div>
         </form>
       </div>
