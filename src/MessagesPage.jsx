@@ -159,7 +159,7 @@ function MessagesPage() {
                 <div key={msg.message_id} className={msg.author_id === decodedToken.current.id ? "authored" : "notAuthored"}>
                   <div>{msg.content}</div>
                   {msg.attachment && (
-                    // Check if the attachment is an image
+                    // PIERWSZE ŻEBY NIE WYBUCHŁO JAK JEST OBRAZKIEM, INNYCH NIE PRZEWIDUJE
                     <img src={msg.attachment} alt="Attachment" style={{ maxWidth: "100px", maxHeight: "100px" }} />
                   )}
                 </div>
