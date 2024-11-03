@@ -59,17 +59,18 @@ function MessagesPage() {
     });
 
     socket.current.on("request-messages-success", (result) => {
-      if (result.length > 0) {
-        const mapped = result.map(msg => (
-          msg.author_id == decodedToken.current.id
-            ? <div className="authored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
-            : <div className="notAuthored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
-        ));
-        setMessagesList(mapped);
-      }
-      else {
-        setMessagesList([<div key="no-messages">Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!</div>]);
-      }
+      setMessagesList(result)
+      // if (result.length > 0) {
+      //   const mapped = result.map(msg => (
+      //     msg.author_id == decodedToken.current.id
+      //       ? <div className="authored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
+      //       : <div className="notAuthored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
+      //   ));
+      //   setMessagesList(mapped);
+      // }
+      // else {
+      //   setMessagesList([<div key="no-messages">Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!</div>]);
+      // }
     });
 
     socket.current.on("request-messages-error", (err) => {
@@ -80,6 +81,10 @@ function MessagesPage() {
       console.error("Error sending a message:", err);
     });
 
+    socket.current.on("new-message", ({ data }) => {
+      setMessagesList(data);
+    });
+
     return () => {
       socket.current.disconnect();
       socket.current.off("request-user-list-success");
@@ -87,6 +92,7 @@ function MessagesPage() {
       socket.current.off("request-messages-success");
       socket.current.off("request-messages-error");
       socket.current.off("send-message-error");
+      socket.current.off("receive-message");
     };
   }, [navigate]);
 
@@ -113,10 +119,10 @@ function MessagesPage() {
       author_id: decodedToken.current.id
     };
 
-    console.log(messagesList)
+    //console.log(messagesList)
     // ja już nie mam siły
     // setMessagesList([...messagesList, <div className="authored" id={newMessage.message_id} key={newMessage.message_id}>{newMessage.content}</div>]);
-    console.log(messagesList)
+    //console.log(messagesList)
 
     socket.current.emit("send-message", { loggedUser: decodedToken.current.id, content: sendContent, receiverId: selectedUserId });
 
@@ -141,7 +147,15 @@ function MessagesPage() {
             <button id="sendBtn" onClick={handleSend}>Wyślij</button>
           </div>
           <div id="messages">
-            {messagesList}
+            {messagesList.length === 0 ? (
+              <div key="no-messages">Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!</div>
+            ) : (
+              messagesList.map((msg) => (
+                msg.author_id === decodedToken.current.id
+                  ? <div className="authored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
+                  : <div className="notAuthored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
+              ))
+            )}
           </div>
           <div id="selectedUser">
             {selectedUser != "" && <span>Aktualnie czatujesz z użytkownikiem {selectedUser}</span>}
