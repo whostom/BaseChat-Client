@@ -128,7 +128,7 @@ function MessagesPage() {
   };
 
   if (socket.current) {
-    socket.current.off("new-message");
+    socket.current.off("receive-message");
   }
 
   return (
