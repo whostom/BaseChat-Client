@@ -65,7 +65,10 @@ function MessagesPage() {
             ? <div className="authored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
             : <div className="notAuthored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
         ));
-        setMessagesList(result);
+        setMessagesList(mapped);
+      }
+      else {
+        setMessagesList([<div key="no-messages">Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!</div>]);
       }
     });
 
@@ -86,13 +89,6 @@ function MessagesPage() {
       socket.current.off("send-message-error");
     };
   }, [navigate]);
-
-  if (socket.current) {
-    socket.current.on("new-message", ({ data }) => {
-      setMessagesList(data);
-    });
-  }
-
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -127,10 +123,6 @@ function MessagesPage() {
     setSendContent("");
   };
 
-  if (socket.current) {
-    socket.current.off("receive-message");
-  }
-
   return (
     <>
       <div className="flex">
@@ -149,16 +141,7 @@ function MessagesPage() {
             <button id="sendBtn" onClick={handleSend}>Wyślij</button>
           </div>
           <div id="messages">
-            {messagesList.length === 0 ? (
-              <div key="no-messages">Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!</div>
-            ) : (
-              messagesList.map((msg) => (
-                msg.author_id === decodedToken.current.id
-                  ? <div className="authored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
-                  : <div className="notAuthored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
-              ))
-            )}
-
+            {messagesList}
           </div>
           <div id="selectedUser">
             {selectedUser != "" && <span>Aktualnie czatujesz z użytkownikiem {selectedUser}</span>}
