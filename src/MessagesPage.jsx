@@ -12,6 +12,7 @@ function MessagesPage() {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [messagesList, setMessagesList] = useState([]);
   const [sendContent, setSendContent] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const socket = useRef(null);
   const decodedToken = useRef(null);
@@ -60,17 +61,6 @@ function MessagesPage() {
 
     socket.current.on("request-messages-success", (result) => {
       setMessagesList(result)
-      // if (result.length > 0) {
-      //   const mapped = result.map(msg => (
-      //     msg.author_id == decodedToken.current.id
-      //       ? <div className="authored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
-      //       : <div className="notAuthored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
-      //   ));
-      //   setMessagesList(mapped);
-      // }
-      // else {
-      //   setMessagesList([<div key="no-messages">Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!</div>]);
-      // }
     });
 
     socket.current.on("request-messages-error", (err) => {
@@ -113,20 +103,32 @@ function MessagesPage() {
   }, [selectedUserId]);
 
   const handleSend = () => {
-    const newMessage = {
-      message_id: new Date().getTime(),
-      content: sendContent,
-      author_id: decodedToken.current.id
+    if (!selectedFile) {
+      socket.current.emit("send-message", { loggedUser: decodedToken.current.id, content: sendContent, receiverId: selectedUserId, attachment: null });
+      setSendContent("");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedFile);
+
+    reader.onload = () => {
+      const base64Attachment = reader.result;
+
+      const attachmentObject = {
+        type: "." + selectedFile.name.substr(selectedFile.name.lastIndexOf('.') + 1, selectedFile.name.length),
+        content: base64Attachment.substr(base64Attachment.lastIndexOf(',') + 1, base64Attachment.length)
+      };
+
+      socket.current.emit("send-message", { loggedUser: decodedToken.current.id, content: sendContent, receiverId: selectedUserId, attachment: attachmentObject });
+
+      setSendContent("");
+      setSelectedFile(null);
     };
 
-    //console.log(messagesList)
-    // ja już nie mam siły
-    // setMessagesList([...messagesList, <div className="authored" id={newMessage.message_id} key={newMessage.message_id}>{newMessage.content}</div>]);
-    //console.log(messagesList)
-
-    socket.current.emit("send-message", { loggedUser: decodedToken.current.id, content: sendContent, receiverId: selectedUserId });
-
-    setSendContent("");
+    reader.onerror = (error) => {
+      console.error("Error converting file to Base64: ", error);
+    };
   };
 
   return (
@@ -144,16 +146,23 @@ function MessagesPage() {
         <div id="chat">
           <div id="messageSend">
             <input type="text" id="messageContent" value={sendContent} onChange={(e) => setSendContent(e.target.value)} />
+            <input type="file" id="attachmentBtn" accept=".mp4, image/*, .pdf, .txt" onChange={(e) => setSelectedFile(e.target.files[0])} />
             <button id="sendBtn" onClick={handleSend}>Wyślij</button>
           </div>
           <div id="messages">
-            {messagesList.length === 0 ? (
-              <div key="no-messages">Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!</div>
+            {messagesList.length == 0 ? (
+              <div key="no-messages">
+                &nbsp;Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!
+              </div>
             ) : (
               messagesList.map((msg) => (
-                msg.author_id === decodedToken.current.id
-                  ? <div className="authored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
-                  : <div className="notAuthored" id={msg.message_id} key={msg.message_id}>{msg.content}</div>
+                <div key={msg.message_id} className={msg.author_id === decodedToken.current.id ? "authored" : "notAuthored"}>
+                  <div>{msg.content}</div>
+                  {msg.attachment && (
+                    // Check if the attachment is an image
+                    <img src={msg.attachment} alt="Attachment" style={{ maxWidth: "100px", maxHeight: "100px" }} />
+                  )}
+                </div>
               ))
             )}
           </div>
