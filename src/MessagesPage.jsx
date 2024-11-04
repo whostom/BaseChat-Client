@@ -155,15 +155,51 @@ function MessagesPage() {
                 &nbsp;Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!
               </div>
             ) : (
-              messagesList.map((msg) => (
-                <div key={msg.message_id} className={msg.author_id === decodedToken.current.id ? "authored" : "notAuthored"}>
-                  <div>{msg.content}</div>
-                  {msg.attachment && (
-                    // PIERWSZE ŻEBY NIE WYBUCHŁO JAK JEST OBRAZKIEM, INNYCH NIE PRZEWIDUJE
-                    <img src={msg.attachment} alt="Attachment" style={{ maxWidth: "100px", maxHeight: "100px" }} />
-                  )}
-                </div>
-              ))
+              messagesList.map((msg) => {
+                const getAttachmentType = (attachment) => {
+                  const extension = attachment.split('.').pop().toLowerCase();
+                  if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
+                    return 'image';
+                  } else if (['mp4', 'webm', 'ogg'].includes(extension)) {
+                    return 'video';
+                  } else {
+                    return 'other';
+                  }
+                };
+              
+                const attachmentType = msg.attachment ? getAttachmentType(msg.attachment) : null;
+              
+                return (
+                  <div
+                    key={msg.message_id}
+                    className={msg.author_id === decodedToken.current.id ? "authored" : "notAuthored"}
+                  >
+                    <div>{msg.content}</div>
+                    {msg.attachment && (
+                      <>
+                        {attachmentType === 'image' && (
+                          <img
+                            src={msg.attachment}
+                            alt="attachment"
+                            style={{ maxWidth: '100%', height: 'auto' }}
+                          />
+                        )}
+                        {attachmentType === 'video' && (
+                          <video width="320" height="240" controls>
+                            <source src={msg.attachment} type={`video/${msg.attachment.split('.').pop()}`} />
+                            Twoja przeglądarka nie wspiera elementu video.
+                          </video>
+                        )}
+                        {attachmentType === 'other' && (
+                          <a href={msg.attachment} download>
+                            {msg.attachment.split('/').pop()}
+                          </a>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })              
             )}
           </div>
           <div id="selectedUser">
