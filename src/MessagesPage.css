@@ -3,8 +3,9 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
-    background: #f8f8f8;
+    background: #ef6e0d;
     font-family: "Roboto Mono", monospace;
+    color: #622c23;
 }
 
 .flex {
@@ -19,6 +20,7 @@ body {
     width: 20%;
     height: 85vh;
     position: relative;
+    /* overflow: auto; */
 }
 
 #messages {
@@ -78,19 +80,19 @@ body {
 
 #logout {
     text-decoration: none;
-    color: #252525;
+    color: #622c23;
     transition: 0.3s;
     font-size: 20px;
     padding: 0.5rem;
-    border: 2px solid #ff4a0257;
+    border: 1px solid #eec707;
     border-radius: 16px;
     cursor: pointer;
+    background-color: #eec707;
 }
 
 #logout:hover {
-    background-color: #ff5e00;
-    box-shadow: 0 0 0 5px #f136075f;
-    color: #fff;
+    background-color: #eec707;
+    box-shadow: 0 0 5px 5px #622c23;
 }
 
 #loggedUser {

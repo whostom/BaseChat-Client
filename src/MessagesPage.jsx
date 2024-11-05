@@ -13,6 +13,7 @@ function MessagesPage() {
   const [messagesList, setMessagesList] = useState([]);
   const [sendContent, setSendContent] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [profilePic, setProfilePic] = useState(null);
 
   const socket = useRef(null);
   const decodedToken = useRef(null);
@@ -43,6 +44,7 @@ function MessagesPage() {
       console.log("Succesfully connected with the server!");
 
       socket.current.emit("request-user-list", { loggedUser: decodedToken.current.id });
+      socket.current.emit("get-profile-picture", { userId: decodedToken.current.id });
     });
 
     socket.current.on("request-user-list-success", (result) => {
@@ -75,14 +77,32 @@ function MessagesPage() {
       setMessagesList(data);
     });
 
+    // socket.current.on("get-profile-picture-success", (data) => {
+    //   setProfilePic(data.profile);
+    // });
+
+    socket.current.on("update-profile-success", (data) => {
+      setProfilePic(data.profile);
+      alert("Profile picture updated successfully!");
+    });
+
+    socket.current.on("update-profile-error", (error) => {
+      console.error("Error updating profile picture:", error);
+      alert("Failed to update profile picture.");
+    });
+
     return () => {
       socket.current.disconnect();
+
       socket.current.off("request-user-list-success");
       socket.current.off("request-user-list-error");
       socket.current.off("request-messages-success");
       socket.current.off("request-messages-error");
       socket.current.off("send-message-error");
-      socket.current.off("receive-message");
+      socket.current.off("new-message");
+      // socket.current.off("get-profile-picture-success");
+      socket.current.off("update-profile-success");
+      socket.current.off("update-profile-error");
     };
   }, [navigate]);
 
@@ -127,8 +147,25 @@ function MessagesPage() {
     };
 
     reader.onerror = (error) => {
-      console.error("Error converting file to Base64: ", error);
+      console.error("Error converting file to Base64: ", erroDr);
     };
+  };
+
+  const handleProfileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+
+      reader.onload = () => {
+        const base64Profile = reader.result.split(",")[1];
+        const attachmentObject = {
+          type: "." + file.name.split(".").pop(),
+          content: base64Profile,
+        };
+        socket.current.emit("update-profile", { loggedUser: decodedToken.current.id, profilePicture: attachmentObject, });
+      };
+    }
   };
 
   return (
@@ -138,20 +175,23 @@ function MessagesPage() {
         <div id="peopleList">
           {peopleList}
           <div id="loggedUser">
-            zdjecie  <br />
+            {profilePic ? (<img src={profilePic} alt="Profile" style={{ width: "100px", height: "100px" }} />) : ("Nie wybrano zdjęcia profilowego")}
+            <input type="file" accept="image/*" onChange={handleProfileUpload} />
             {loggedUser || "Nieznany użytkownik"}<br />
             <a id="logout" onClick={logout}>Wyloguj się</a>
           </div>
         </div>
 
         <div id="chat">
-          <div id="messageSend">
-            <input type="text" id="messageContent" value={sendContent} onChange={(e) => setSendContent(e.target.value)} />
-            <input type="file" id="attachmentBtn" accept=".mp4, image/*, .pdf, .txt" onChange={(e) => setSelectedFile(e.target.files[0])} />
-            <button id="sendBtn" onClick={handleSend}>Wyślij</button>
-          </div>
+          {selectedUser && (
+            <div id="messageSend">
+              <input type="text" id="messageContent" value={sendContent} onChange={(e) => setSendContent(e.target.value)} />
+              <input type="file" id="attachmentBtn" accept=".mp4, image/*, .pdf, .txt" onChange={(e) => setSelectedFile(e.target.files[0])} />
+              <button id="sendBtn" onClick={handleSend}>Wyślij</button>
+            </div>
+          )}
           <div id="messages">
-            {messagesList.length == 0 ? (
+            {messagesList.length == 0 && selectedUser ? (
               <div key="no-messages">
                 &nbsp;Nie ma żadnych wiadomości do wyświetlenia. Zacznij konwersację już teraz!
               </div>
@@ -167,9 +207,9 @@ function MessagesPage() {
                     return 'other';
                   }
                 };
-              
+
                 const attachmentType = msg.attachment ? getAttachmentType(msg.attachment) : null;
-              
+
                 return (
                   <div
                     key={msg.message_id}
@@ -200,7 +240,7 @@ function MessagesPage() {
                     )}
                   </div>
                 );
-              })              
+              })
             )}
           </div>
           <div id="selectedUser">
