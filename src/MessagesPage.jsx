@@ -82,7 +82,7 @@ function MessagesPage() {
     // });
 
     socket.current.on("update-profile-success", (data) => {
-      setProfilePic(data.profile);
+      setProfilePic(data);
       alert("Profile picture updated successfully!");
     });
 
