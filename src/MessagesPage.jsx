@@ -136,11 +136,12 @@ function MessagesPage() {
       <div className="flex">
 
         <div id="peopleList">
+          {peopleList}
           <div id="loggedUser">
-            Zalogowano jako: {loggedUser || "Nieznany użytkownik"}<br /><br />
+            zdjecie  <br />
+            {loggedUser || "Nieznany użytkownik"}<br />
             <a id="logout" onClick={logout}>Wyloguj się</a>
           </div>
-          {peopleList}
         </div>
 
         <div id="chat">
