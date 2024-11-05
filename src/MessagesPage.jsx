@@ -183,8 +183,7 @@ function MessagesPage() {
                   <FaCamera className="cameraIcon" />
                 )}
               </label>
-
-              {/* Hidden file input */}
+              
               <input
                 type="file"
                 id="profilePicInput"
