@@ -1,5 +1,5 @@
 body {
-    background: #ef6e0d;
+    background: #f8f8f8;
     width: 100%;
     height: 100%;
     margin: 0;
@@ -36,12 +36,12 @@ input[type="text"] {
     box-sizing: border-box;
     padding: 20px;
     font-size: 30px;
-    color: #622c23;
+    color: #f8f8f8;
     height: 4rem;
     border-radius: 20px;
     width: 30rem;
     margin-bottom: 2rem;
-    background: #ffffff;
+    background: #252525;
     border-radius: 16px;
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -55,9 +55,9 @@ label {
 
 #submitBtn {
     cursor: pointer;
-    background-color: #eec707;
-    color: #622c23;
-    border: 1px solid #eec707;
+    background-color: #f3f7fe;
+    color: #3b82f6;
+    border: 1px solid #3b83f65f;
     border-radius: 8px;
     padding: 1rem;
     transition: 0.3s;
@@ -67,12 +67,13 @@ label {
 }
 
 #submitBtn:hover {
-    background-color: #eec707;
-    box-shadow: 0 0 5px 5px #622c23;
+    background-color: #3b82f6;
+    box-shadow: 0 0 0 5px #3b83f65f;
+    color: #fff;
 }
 
 #info {
-    color: #622c23;
+    color: #3b82f6;
     margin-top: 2rem;
     text-align: center;
 }

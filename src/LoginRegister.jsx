@@ -1,6 +1,4 @@
 import "./LoginRegister.css"
-import logo from './media/logo.gif';
-import motto from './media/motto.gif';
 import { io } from "socket.io-client";
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom";
@@ -78,7 +76,6 @@ function LoginRegister() {
   return (
     <>
       <div className="flex">
-        {/* <img src={logo} style={{  }}/> */}
         <form className="loginRegisterForm" style={hasAccount ? { height: "35rem" } : { height: "50rem" }} onSubmit={handleSubmit}>
           <label>{hasAccount ? "Login" : "Nazwa użytkownika"}</label>
           <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -101,7 +98,6 @@ function LoginRegister() {
             <span id="info">{message}</span>
           </div>
         </form>
-        {/* <img src={motto} style={{ }}/> */}
       </div>
     </>
   )

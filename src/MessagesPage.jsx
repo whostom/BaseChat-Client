@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { FaPaperclip, FaCamera } from "react-icons/fa";
 
 function MessagesPage() {
 
@@ -49,7 +50,7 @@ function MessagesPage() {
 
     socket.current.on("request-user-list-success", (result) => {
       if (result.length > 0) {
-        const mapped = result.map(person => (<div className="card" id={person.user_id} key={person.user_id} onClick={() => selectChatHandler(person)}>{person.login}</div>));
+        const mapped = result.map(person => (<div className="card" id={person.user_id} key={person.user_id} onClick={() => selectChatHandler(person)}><img src={person.profile} alt={`${person.login}'s profile`} className="userProfilePic"/><span>{person.login}</span></div>));
         setPeopleList(mapped);
       }
       else {
@@ -77,10 +78,6 @@ function MessagesPage() {
       setMessagesList(data);
     });
 
-    // socket.current.on("get-profile-picture-success", (data) => {
-    //   setProfilePic(data.profile);
-    // });
-
     socket.current.on("update-profile-success", (data) => {
       setProfilePic(data);
       alert("Profile picture updated successfully!");
@@ -100,7 +97,6 @@ function MessagesPage() {
       socket.current.off("request-messages-error");
       socket.current.off("send-message-error");
       socket.current.off("new-message");
-      // socket.current.off("get-profile-picture-success");
       socket.current.off("update-profile-success");
       socket.current.off("update-profile-error");
     };
@@ -175,8 +171,29 @@ function MessagesPage() {
         <div id="peopleList">
           {peopleList}
           <div id="loggedUser">
-            {profilePic ? (<img src={profilePic} alt="Profile" style={{ width: "100px", height: "100px" }} />) : ("Nie wybrano zdjęcia profilowego")}
-            <input type="file" accept="image/*" onChange={handleProfileUpload} />
+            <div>
+              <label htmlFor="profilePicInput" className="profilePicLabel">
+                {profilePic ? (
+                  <img
+                    src={profilePic}
+                    alt="Profile"
+                    className="profilePic"
+                  />
+                ) : (
+                  <FaCamera className="cameraIcon" />
+                )}
+              </label>
+
+              {/* Hidden file input */}
+              <input
+                type="file"
+                id="profilePicInput"
+                accept="image/*"
+                onChange={handleProfileUpload}
+                style={{ display: "none" }}
+              />
+            </div>
+
             {loggedUser || "Nieznany użytkownik"}<br />
             <a id="logout" onClick={logout}>Wyloguj się</a>
           </div>
@@ -186,7 +203,10 @@ function MessagesPage() {
           {selectedUser && (
             <div id="messageSend">
               <input type="text" id="messageContent" value={sendContent} onChange={(e) => setSendContent(e.target.value)} />
-              <input type="file" id="attachmentBtn" accept=".mp4, image/*, .pdf, .txt" onChange={(e) => setSelectedFile(e.target.files[0])} />
+              <input type="file" id="attachmentBtn" accept=".mp4, image/*, .pdf, .txt" onChange={(e) => setSelectedFile(e.target.files[0])} style={{ display: "none" }} />
+              <label htmlFor="attachmentBtn">
+                <FaPaperclip size={40} style={{ cursor: "pointer", color: "#888", margin: "10px 10px" }} />
+              </label>
               <button id="sendBtn" onClick={handleSend}>Wyślij</button>
             </div>
           )}
