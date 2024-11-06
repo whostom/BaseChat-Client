@@ -24,7 +24,6 @@ body {
 
 #pList{
     overflow: auto;
-
 }
 
 #peopleWrapper{
@@ -153,7 +152,7 @@ body {
 }
 
 .authored {
-    margin-left: 72%;
+    margin-left: 69%;
 }
 
 .notAuthored {
