@@ -50,7 +50,11 @@ function MessagesPage() {
 
     socket.current.on("request-user-list-success", (result) => {
       if (result.length > 0) {
-        const mapped = result.map(person => (<div className="card" id={person.user_id} key={person.user_id} onClick={() => selectChatHandler(person)}><img src={person.profile} alt={`${person.login}'s profile`} className="userProfilePic"/><span>{person.login}</span></div>));
+        setProfilePic(result.filter(person => person.user_id === decodedToken.current.id).map(person => person.profile))
+
+        const filteredResult = result.filter(person => person.user_id !== decodedToken.current.id);
+
+        const mapped = filteredResult.map(person => (<div className="card" id={person.user_id} key={person.user_id} onClick={() => selectChatHandler(person)}><img src={person.profile} alt={`${person.login}'s profile`} className="userProfilePic" /><span>{person.login}</span></div>));
         setPeopleList(mapped);
       }
       else {
@@ -63,6 +67,7 @@ function MessagesPage() {
     });
 
     socket.current.on("request-messages-success", (result) => {
+      console.log(result)
       setMessagesList(result)
     });
 
@@ -169,9 +174,12 @@ function MessagesPage() {
       <div className="flex">
 
         <div id="peopleList">
+          <div id="pList">
           {peopleList}
+          </div>
+          
           <div id="loggedUser">
-            <div>
+            <div className="profilePicWrapper">
               <label htmlFor="profilePicInput" className="profilePicLabel">
                 {profilePic ? (
                   <img
@@ -183,7 +191,7 @@ function MessagesPage() {
                   <FaCamera className="cameraIcon" />
                 )}
               </label>
-              
+
               <input
                 type="file"
                 id="profilePicInput"

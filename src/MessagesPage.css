@@ -17,9 +17,20 @@ body {
     align-items: center;
     flex-direction: column;
     width: 20%;
-    height: 85vh;
+    height: 100vh;
     position: relative;
     /* overflow: auto; */
+}
+
+#pList{
+    overflow: auto;
+
+}
+
+#peopleWrapper{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
 }
 
 #messages {
@@ -106,6 +117,19 @@ body {
 
 .card {
     width: 76%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card img{
+    height: 4rem;
+    width: 4rem;
+}
+
+.profilePicWrapper{
+    display: flex;
+    justify-content: center;
 }
 
 .authored,
