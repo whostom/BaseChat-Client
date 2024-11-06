@@ -1,4 +1,4 @@
-# WebChat
+# BaseChat
 
 WebChat to nowoczesna aplikacja czatowa inspirowana wyglądem i funkcjonalnością popularnych komunikatorów, takich jak Messenger. Celem projektu jest umożliwienie użytkownikom wygodnej komunikacji w czasie rzeczywistym z intuicyjnym i przyjaznym interfejsem.
 
