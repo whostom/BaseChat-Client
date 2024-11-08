@@ -53,10 +53,14 @@ function LoginRegister() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (password != repeatedPassword) {
+      setMessage("Hasła nie są takie same!");
+      return;
+    }
 
     const hashedPassword = CryptoJS.SHA256(password).toString();
 
-    if (!hasAccount) socket.current.emit("register-user", { username, password, email });
+    if (!hasAccount && password == repeatedPassword) socket.current.emit("register-user", { username, password, email });
     else socket.current.emit("login-user", { username, hashedPassword, email });
 
     setUsername("");
@@ -82,7 +86,7 @@ function LoginRegister() {
           {hasAccount && <div>Podaj nazwę użytkownika lub email.<br /><br /></div>}
 
           {!hasAccount && <label>Email</label>}
-          {!hasAccount && <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />}
+          {!hasAccount && <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />}
 
           <label>Hasło</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
