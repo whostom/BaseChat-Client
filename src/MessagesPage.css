@@ -133,6 +133,7 @@ body {
 
 .authored,
 .notAuthored {
+    cursor: default !important;
     width: 20rem;
 }
 

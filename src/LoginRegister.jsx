@@ -53,7 +53,7 @@ function LoginRegister() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password != repeatedPassword) {
+    if (!hasAccount && password != repeatedPassword) {
       setMessage("Hasła nie są takie same!");
       return;
     }

@@ -124,6 +124,10 @@ function MessagesPage() {
   }, [selectedUserId]);
 
   const handleSend = () => {
+    if (!sendContent && !selectedFile) {
+      return;
+    }
+
     if (!selectedFile) {
       socket.current.emit("send-message", { loggedUser: decodedToken.current.id, content: sendContent, receiverId: selectedUserId, attachment: null });
       setSendContent("");
@@ -168,6 +172,12 @@ function MessagesPage() {
       };
     }
   };
+  
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && (sendContent || selectedFile)) {
+      handleSend();
+    }
+  };
 
   return (
     <>
@@ -209,7 +219,7 @@ function MessagesPage() {
         <div id="chat">
           {selectedUser && (
             <div id="messageSend">
-              <input type="text" id="messageContent" value={sendContent} onChange={(e) => setSendContent(e.target.value)} />
+              <input type="text" id="messageContent" value={sendContent} onKeyDown={handleKeyPress} onChange={(e) => setSendContent(e.target.value)} />
               <input type="file" id="attachmentBtn" accept=".mp4, image/*, .pdf, .txt" onChange={(e) => setSelectedFile(e.target.files[0])} style={{ display: "none" }} />
               <label htmlFor="attachmentBtn">
                 <FaPaperclip size={40} style={{ cursor: "pointer", color: "#888", margin: "10px 10px" }} />
