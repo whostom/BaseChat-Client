@@ -56,7 +56,6 @@ Obok pola tekstowego znajduje się ikona umożliwiająca dodanie plików do wiad
 - Jeśli przesyłany plik jest obsługiwany przez przeglądarkę, pojawi się jego podgląd w czacie.  
 - W przypadku braku możliwości podglądu pliku, użytkownik otrzyma link do jego pobrania.  
 
-**[Zrzut ekranu okna czatu z widocznymi wiadomościami i załącznikami]**
 ![alt text](./docs_images/image-3.png)
 
 ---
