@@ -20,8 +20,8 @@ BaseChat to nowoczesna aplikacja czatowa inspirowana wyglądem i funkcjonalnośc
 Aplikacja BaseChat pozwala użytkownikom na szybkie logowanie lub rejestrację.
 Poniżej znajduje się miejsce na dodanie zrzutów ekranu przedstawiających formularze logowania i rejestracji.
 
-![alt](image.png)
-![alt](image-1.png)
+![alt](./docs_images/image.png)
+![alt](./docs_images/image-1.png)
 
 ---
 
@@ -35,7 +35,7 @@ Po zalogowaniu użytkownik zostaje przekierowany na główny ekran czatu, który
 2. **Okno czatu** (po prawej stronie)  
    Tutaj wyświetla się aktualnie prowadzona rozmowa.
 
-![alt text](image-2.png)
+![alt text](./docs_images/image-2.png)
 
 ---
 
@@ -57,7 +57,7 @@ Obok pola tekstowego znajduje się ikona umożliwiająca dodanie plików do wiad
 - W przypadku braku możliwości podglądu pliku, użytkownik otrzyma link do jego pobrania.  
 
 **[Zrzut ekranu okna czatu z widocznymi wiadomościami i załącznikami]**
-![alt text](image-3.png)
+![alt text](./docs_images/image-3.png)
 
 ---
 
